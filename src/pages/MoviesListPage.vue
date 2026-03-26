@@ -42,11 +42,11 @@
       class="rounded-borders"
     >
       <q-item v-for="m in movies" :key="m.id">
-        <q-item-section avatar>
+        <q-item-section avatar top>
           <div
             style="
               width: 56px;
-              height: 56px;
+              height: 84px; /* Proporción tipo póster (2:3) */
               display: flex;
               align-items: center;
               justify-content: center;

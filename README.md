@@ -35,7 +35,9 @@ VITE_API_BASE_URL=http://TU-HOST:TU-PUERTO
 
 Para levantar el front, sigue las instrucciones de abajo.
 
-## Install the dependencies
+### 2) Levantar el front (este repo)
+
+#### Install the dependencies
 
 ```bash
 yarn
@@ -70,6 +72,58 @@ npm run format
 ```bash
 quasar build
 ```
+
+### 3) Compilar Android (Capacitor) y generar APK
+
+1. Genera el build web del front (si no lo has hecho):
+
+   ```bash
+   quasar build
+   ```
+
+2. Sincroniza el proyecto de Capacitor Android:
+
+   ```bash
+   cd src-capacitor
+   npx cap sync android
+   ```
+
+3. Abre Android Studio (opcional) o compila el APK:
+
+   ```bash
+   npx cap open android
+   ```
+
+   Para generar el `.apk` desde consola:
+
+   ```bash
+   cd android
+   gradlew.bat assembleDebug
+   ```
+
+El `.apk` suele quedar en:
+
+`src-capacitor/android/app/build/outputs/apk/debug/app-debug.apk`
+
+### 4) Mostrar la app en Android Studio (otro PC)
+
+Tienes 2 opciones:
+
+1. **Transferir el APK y instalarlo**
+   - Copia el archivo `.apk` al otro PC.
+   - En el otro PC, abre Android Studio y levanta un emulador (o conecta un móvil por USB).
+   - Instálalo (recomendado por consola con `adb`):
+     ```powershell
+     adb devices
+     adb install -r "ruta\al\app-debug.apk"
+     ```
+   - Si te es más cómodo, también puedes arrastrar el `.apk` dentro de Android Studio o instalarlo desde el emulador (depende de la versión).
+
+2. **Abrir el proyecto Android en Android Studio**
+   - En el PC “donde compilas”, asegúrate de haber ejecutado `npx cap sync android`.
+   - Copia la carpeta `src-capacitor/android` al otro PC.
+   - En Android Studio: `File > Open` y selecciona esa carpeta (`src-capacitor/android`).
+   - Luego usa `Run` para instalar en el emulador/dispositivo.
 
 ### Customize the configuration
 
