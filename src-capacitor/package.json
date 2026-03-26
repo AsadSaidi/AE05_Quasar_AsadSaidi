@@ -1,0 +1,13 @@
+{
+  "name": "ae05-quasar",
+  "version": "0.0.1",
+  "description": "A Quasar Project",
+  "author": "AsadSaidi <asad.saidi.7e8@itb.cat>",
+  "private": true,
+  "dependencies": {
+    "@capacitor/android": "^7.6.1",
+    "@capacitor/app": "^7.0.0",
+    "@capacitor/cli": "^7.0.0",
+    "@capacitor/core": "^7.0.0"
+  }
+}

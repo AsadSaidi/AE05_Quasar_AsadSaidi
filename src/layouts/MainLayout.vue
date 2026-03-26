@@ -4,17 +4,49 @@
       <q-toolbar>
         <q-btn flat dense round icon="menu" aria-label="Menu" @click="toggleLeftDrawer" />
 
-        <q-toolbar-title> Quasar App </q-toolbar-title>
-
-        <div>Quasar v{{ $q.version }}</div>
+        <q-toolbar-title> Películas App </q-toolbar-title>
       </q-toolbar>
     </q-header>
 
     <q-drawer v-model="leftDrawerOpen" show-if-above bordered>
       <q-list>
-        <q-item-label header> Essential Links </q-item-label>
+        <q-item-label header> Menú </q-item-label>
 
-        <EssentialLink v-for="link in linksList" :key="link.title" v-bind="link" />
+        <q-item clickable @click="go('/movies')" v-if="auth.loggedIn">
+          <q-item-section avatar>
+            <q-icon name="movie" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>Películas</q-item-label>
+          </q-item-section>
+        </q-item>
+
+        <q-item clickable @click="go('/login')" v-if="!auth.loggedIn">
+          <q-item-section avatar>
+            <q-icon name="login" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>Login</q-item-label>
+          </q-item-section>
+        </q-item>
+
+        <q-item clickable @click="go('/register')" v-if="!auth.loggedIn">
+          <q-item-section avatar>
+            <q-icon name="app_registration" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>Registro</q-item-label>
+          </q-item-section>
+        </q-item>
+
+        <q-item clickable v-if="auth.loggedIn" @click="doLogout">
+          <q-item-section avatar>
+            <q-icon name="logout" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>Logout</q-item-label>
+          </q-item-section>
+        </q-item>
       </q-list>
     </q-drawer>
 
@@ -25,57 +57,40 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import EssentialLink from 'components/EssentialLink.vue'
+import { onMounted, ref } from "vue";
+import { useRouter } from "vue-router";
+import { useQuasar } from "quasar";
+import { useAuth } from "stores/auth";
 
-const linksList = [
-  {
-    title: 'Docs',
-    caption: 'quasar.dev',
-    icon: 'school',
-    link: 'https://quasar.dev',
-  },
-  {
-    title: 'Github',
-    caption: 'github.com/quasarframework',
-    icon: 'code',
-    link: 'https://github.com/quasarframework',
-  },
-  {
-    title: 'Discord Chat Channel',
-    caption: 'chat.quasar.dev',
-    icon: 'chat',
-    link: 'https://chat.quasar.dev',
-  },
-  {
-    title: 'Forum',
-    caption: 'forum.quasar.dev',
-    icon: 'record_voice_over',
-    link: 'https://forum.quasar.dev',
-  },
-  {
-    title: 'Twitter',
-    caption: '@quasarframework',
-    icon: 'rss_feed',
-    link: 'https://twitter.quasar.dev',
-  },
-  {
-    title: 'Facebook',
-    caption: '@QuasarFramework',
-    icon: 'public',
-    link: 'https://facebook.quasar.dev',
-  },
-  {
-    title: 'Quasar Awesome',
-    caption: 'Community Quasar projects',
-    icon: 'favorite',
-    link: 'https://awesome.quasar.dev',
-  },
-]
+const router = useRouter();
+const auth = useAuth();
+const $q = useQuasar();
 
-const leftDrawerOpen = ref(false)
+const leftDrawerOpen = ref(false);
 
 function toggleLeftDrawer() {
   leftDrawerOpen.value = !leftDrawerOpen.value
 }
+
+function go(path) {
+  leftDrawerOpen.value = false;
+  router.push(path);
+}
+
+async function doLogout() {
+  try {
+    await auth.logout();
+  } catch (e) {
+    $q.notify({
+      message: e?.message || "Error al cerrar sesión",
+      color: "negative",
+    });
+  }
+  leftDrawerOpen.value = false;
+  router.push("/login");
+}
+
+onMounted(async () => {
+  await auth.checkSessionOnce();
+});
 </script>
