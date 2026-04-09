@@ -1,5 +1,14 @@
 import { API_BASE_URL } from "src/config/api";
 
+function getStoredAuthToken() {
+  if (typeof window === "undefined") return null;
+  try {
+    return window.localStorage.getItem("auth_token");
+  } catch {
+    return null;
+  }
+}
+
 function getErrorMessageFromResponse(res) {
   const contentType = res.headers.get("content-type") || "";
   if (contentType.includes("application/json")) {
@@ -17,10 +26,17 @@ export async function apiFetch(path, options = {}) {
     credentials = "include",
   } = options;
 
+  const token = getStoredAuthToken();
+  const authHeader =
+    token && !("Authorization" in headers) && !("authorization" in headers)
+      ? { Authorization: `Bearer ${token}` }
+      : {};
+
   const fetchOptions = {
     method,
     headers: {
       ...(body ? { "Content-Type": "application/json" } : {}),
+      ...authHeader,
       ...headers,
     },
     credentials,

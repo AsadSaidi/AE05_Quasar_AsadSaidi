@@ -8,6 +8,36 @@ const state = reactive({
   user: null,
 });
 
+function persistToken(token) {
+  if (typeof window === "undefined") return;
+  try {
+    if (!token) return;
+    window.localStorage.setItem("auth_token", token);
+  } catch {
+    // ignore storage errors (private mode, etc.)
+  }
+}
+
+function clearPersistedToken() {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.removeItem("auth_token");
+  } catch {
+    // ignore
+  }
+}
+
+function extractToken(resp) {
+  return (
+    resp?.token ||
+    resp?.accessToken ||
+    resp?.access_token ||
+    resp?.jwt ||
+    resp?.data?.token ||
+    null
+  );
+}
+
 let sessionCheckPromise = null;
 
 async function checkSession() {
@@ -43,6 +73,7 @@ export function useAuth() {
       method: "POST",
       body: { email, password },
     });
+    persistToken(extractToken(resp));
     const nextUser = resp?.user ?? resp ?? null;
     state.loggedIn = !!nextUser;
     state.user = nextUser;
@@ -53,6 +84,7 @@ export function useAuth() {
       method: "POST",
       body: { name, email, password },
     });
+    persistToken(extractToken(resp));
     const nextUser = resp?.user ?? resp ?? null;
     state.loggedIn = !!nextUser;
     state.user = nextUser;
@@ -60,6 +92,7 @@ export function useAuth() {
 
   async function logout() {
     await apiFetch("/api/_auth/session", { method: "DELETE" });
+    clearPersistedToken();
     state.loggedIn = false;
     state.user = null;
     state.ready = true;
